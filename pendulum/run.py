@@ -1,35 +1,41 @@
-from matplotlib.animation import FuncAnimation
-import time
+import pygame
 import math
 
-import matplotlib.pyplot as plt
+pygame.init()
 
-G = 9.8
-DT = 60
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Pendulum Simulation")
 
-THETA = 30 # 360 
-STRING_LENGTH = 10 # m
-M = 5 # kg
+G = 10
+T = 10
 
-SPACE_LIMIT = 1.5 * STRING_LENGTH
+class Pendulum:
+    def __init__(self, length, angle):
+        self.length = length
+        self.angle = angle
+        self.x_position = 400+ length * math.sin(angle)
+        self.y_position = 300+ length/2 + length * math.cos(angle)
+        self.x_vector = 0
+        self.y_vector = 0
 
-fig, ax = plt.subplots()
-ax.set_xlim(0, SPACE_LIMIT)
-ax.set_ylim(0, SPACE_LIMIT)
-point, = ax.plot([], [], 'ro', markersize=8)
+    def update(self):
+        # get angle
+        self.angle = math.asin(abs(self.x_position-400)/self.length)
+        # gravity
+        self.y_vector -= G
+        # tension
+        self.y_vector += T
+        
 
-x, y = [SPACE_LIMIT/2 + math.sin(THETA) * STRING_LENGTH, SPACE_LIMIT*3/4 + STRING_LENGTH * math.cos(THETA)]
-v_right, v_up = 0, 0
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-def update(frame):
-    v_up -= G / DT
-    
+    screen.fill((255, 255, 255))  
+    pygame.draw.line(screen, (0, 0, 0), (400, 300), (400, 200), 5)  # Draw the pendulum string
+    pygame.draw.circle(screen, (0, 0, 255), (400, 300), 50)  # Draw a pendulum bob
+    pygame.display.flip()
 
-    point.set_data([x], [y])
-
-    return point
-
-
-
-ani = FuncAnimation(fig, update, interval=33.33, blit=True)
-plt.show()
+pygame.quit()
